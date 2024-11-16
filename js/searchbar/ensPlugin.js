@@ -1,119 +1,112 @@
-const EthEnsNamehash = require("eth-ens-namehash");
-const ensRegistry = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"; // see https://docs.ens.domains/ens-deployments
-const tomiRegistry = "0x4F85c3d1A5B9655FDbFf53f24Da6DB9ABD61b481";
-const rpcHost =
-  "https://mainnet.infura.io/v3/8ed191d0d74a4e0381922d75c6384379"; /* mainnet */
-const ipfsBaseUrl = "https://infura-ipfs.io/ipfs/";
+const EthEnsNamehash = require("eth-ens-namehash")
+const { ipcRenderer } = require("electron")
+// const fetch = require('node-fetch');
+const ensRegistry = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'; // see https://docs.ens.domains/ens-deployments
+const tomiRegistry = '0x4F85c3d1A5B9655FDbFf53f24Da6DB9ABD61b481'
+const rpcHost = 'https://mainnet.infura.io/v3/8ed191d0d74a4e0381922d75c6384379'; /* mainnet */
+// const rpcHost = 'https://eth-mainnet.g.alchemy.com/v2/cK7y41RhA-yLCUsqtR9rUYQaPrAu_PV5'
+const ipfsBaseUrl = 'https://infura-ipfs.io/ipfs/';
 
 function removePrefix(hex) {
-  if (hex.substr(0, 2) === "0x") return hex.substr(2);
+  if (hex.substr(0, 2) === '0x')
+    return hex.substr(2);
   return hex;
 }
 
 async function requestPostJson(url, data) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-      if (this.readyState == 4) {
-        let response;
-        if (this.status == 200) {
-          try {
-            response = JSON.parse(this.responseText);
-          } catch (err) {
-            reject(err);
-            return;
-          }
-          const result = response.result;
+  try {
+    const response = await ipcRenderer.invoke('make-proxy-request', {
+      url: url,
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: data
+    })
 
-          if (!result) {
-            reject("Geth request failed");
-            return;
-          }
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-          if (result.length <= 2) {
-            reject("Invalid response");
-            return;
-          }
+    const jsonResponse = response.data;
+    const result = jsonResponse.result;
 
-          resolve(result);
-        } else {
-          try {
-            response = JSON.parse(this.responseText);
-          } catch (err) {
-            //
-          }
-          if (response.error && response.error.message) {
-            reject(response.error.message);
-            return;
-          }
-          reject("returned status code " + this.status);
-        }
-      }
-    };
-    xhr.onerror = () => reject(xhr.response);
-    xhr.open("POST", url);
-    xhr.setRequestHeader("Content-Type", "application/json;charset=utf-8");
-    xhr.send(JSON.stringify(data));
-  });
+    if (!result) {
+      throw new Error('Geth request failed');
+    }
+
+    if (result.length <= 2) {
+      throw new Error('Invalid response');
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Request failed:', error);
+    throw error;
+  }
 }
 
 async function lookupResolver(host, nameHash, ensRegistry, tomiRegistry) {
-  const dataGetEnsResolver = {
-    id: 0,
-    jsonrpc: "2.0",
-    params: [
-      {
-        to: ensRegistry,
-        data: "0x0178b8bf" + removePrefix(nameHash),
-      },
-      "latest",
-    ],
-    method: "eth_call",
-  };
+  try {
+    const dataGetEnsResolver = {
+      'id': 0,
+      'jsonrpc': '2.0',
+      'params': [
+        {
+          'to': ensRegistry,
+          'data': '0x0178b8bf' + removePrefix(nameHash)
+        },
+        'latest'
+      ],
+      'method': 'eth_call'
+    };
 
-  const ensResult = await requestPostJson(host, dataGetEnsResolver);
-  const ensCleanResult = removePrefix(ensResult);
-  const ensResolver = "0x" + ensCleanResult.substr(24);
+    const ensResult = await requestPostJson(host, dataGetEnsResolver);
+    const ensCleanResult = removePrefix(ensResult);
+    const ensResolver = '0x' + ensCleanResult.substr(24);
 
-  if (ensResolver !== "0x0000000000000000000000000000000000000000") {
-    return ensResolver;
+    if (ensResolver && ensResolver !== '0x0000000000000000000000000000000000000000') {
+      return ensResolver;
+    }
+
+    const dataGetTomiResolver = {
+      'id': 0,
+      'jsonrpc': '2.0',
+      'params': [
+        {
+          'to': tomiRegistry,
+          'data': '0x0178b8bf' + removePrefix(nameHash)
+        },
+        'latest'
+      ],
+      'method': 'eth_call'
+    };
+
+    const tomiResult = await requestPostJson(host, dataGetTomiResolver);
+    const tomiCleanResult = removePrefix(tomiResult);
+    const tomiResolver = '0x' + tomiCleanResult.substr(24);
+
+    if (tomiResolver && tomiResolver !== '0x0000000000000000000000000000000000000000') {
+      return tomiResolver;
+    }
+    return;
+  } catch (error) {
+    return;
   }
-
-  const dataGetTomiResolver = {
-    id: 0,
-    jsonrpc: "2.0",
-    params: [
-      {
-        to: tomiRegistry,
-        data: "0x0178b8bf" + removePrefix(nameHash),
-      },
-      "latest",
-    ],
-    method: "eth_call",
-  };
-
-  const tomiResult = await requestPostJson(host, dataGetTomiResolver);
-  const tomiCleanResult = removePrefix(tomiResult);
-  const tomiResolver = "0x" + tomiCleanResult.substr(24);
-
-  if (tomiResolver !== "0x0000000000000000000000000000000000000000") {
-    return tomiResolver;
-  }
-  return;
 }
 
 async function lookupContenthash(host, nameHash, resolver) {
   const dataGetContentHash = {
-    id: 1,
-    jsonrpc: "2.0",
-    params: [
+    'id': 1,
+    'jsonrpc': '2.0',
+    'params': [
       {
-        to: resolver,
-        data: "0xbc1c58d1" + removePrefix(nameHash),
+        'to': resolver,
+        'data': '0xbc1c58d1' + removePrefix(nameHash)
       },
-      "latest",
+      'latest'
     ],
-    method: "eth_call",
+    'method': 'eth_call'
   };
 
   const result = await requestPostJson(host, dataGetContentHash);
@@ -131,18 +124,15 @@ async function lookupContenthash(host, nameHash, resolver) {
 
 function contenthashToCID(contenthash) {
   // first byte should be 'e3' for ipfs, then '01' - add 'f' to sign hex codes cid
-  return "f" + contenthash.substr(4);
+  return 'f' + contenthash.substr(4);
 }
 
 const ensPlugin = {
   checkEns: function (url) {
     try {
-      const domainPartsEns = url.split(".");
-      const length = domainPartsEns.length;
-      if (
-        domainPartsEns[length - 1] === "eth" ||
-        domainPartsEns[length - 1] === "tomi"
-      ) {
+      const domainPartsEns = url.split(".")
+      const length = domainPartsEns.length
+      if (domainPartsEns[length - 1] === "eth" || domainPartsEns[length - 1] === "tomi") {
         return true;
       }
       return false;
@@ -152,15 +142,10 @@ const ensPlugin = {
   },
 
   resolveEns: async function (hostnameENS) {
-    let url = new URL("http://" + hostnameENS);
+    let url = new URL('http://' + hostnameENS);
     try {
       const nameHash = EthEnsNamehash.hash(hostnameENS);
-      const resolver = await lookupResolver(
-        rpcHost,
-        nameHash,
-        ensRegistry,
-        tomiRegistry
-      );
+      const resolver = await lookupResolver(rpcHost, nameHash, ensRegistry, tomiRegistry);
       if (!resolver) {
         return;
       }
@@ -175,7 +160,7 @@ const ensPlugin = {
     } catch (error) {
       return;
     }
-  },
-};
+  }
+}
 
-module.exports = ensPlugin;
+module.exports = ensPlugin
