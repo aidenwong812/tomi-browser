@@ -1,6 +1,12 @@
 const electron = require('electron')
 const fs = require('fs')
 const path = require('path')
+const { SocksProxyAgent } = require('socks-proxy-agent');
+// const fetch = require('node-fetch');
+
+const proxyOptions = 'socks5://16cfa15835982d9155c4:8983a19a94d48386@gw.dataimpulse.com:824';
+const agent = new SocksProxyAgent(proxyOptions);
+
 
 const {
   app, // Module to control application life.
@@ -32,7 +38,7 @@ if (process.argv.some(arg => arg === '-v' || arg === '--version')) {
 let isInstallerRunning = false
 const isDevelopmentMode = process.argv.some(arg => arg === '--development-mode')
 
-function clamp (n, min, max) {
+function clamp(n, min, max) {
   return Math.max(Math.min(n, max), min)
 }
 
@@ -91,7 +97,7 @@ var saveWindowBounds = function () {
   }
 }
 
-function sendIPCToWindow (window, action, data) {
+function sendIPCToWindow(window, action, data) {
   if (window && window.isDestroyed()) {
     console.warn('ignoring message ' + action + ' sent to destroyed window')
     return
@@ -100,7 +106,7 @@ function sendIPCToWindow (window, action, data) {
   if (window && window.webContents && window.webContents.isLoadingMainFrame()) {
     // immediately after a did-finish-load event, isLoading can still be true,
     // so wait a bit to confirm that the page is really loading
-    setTimeout(function() {
+    setTimeout(function () {
       if (window.webContents.isLoadingMainFrame()) {
         window.webContents.once('did-finish-load', function () {
           window.webContents.send(action, data || {})
@@ -119,13 +125,13 @@ function sendIPCToWindow (window, action, data) {
   }
 }
 
-function openTabInWindow (url) {
+function openTabInWindow(url) {
   sendIPCToWindow(windows.getCurrent(), 'addTab', {
     url: url
   })
 }
 
-function handleCommandLineArguments (argv) {
+function handleCommandLineArguments(argv) {
   // the "ready" event must occur before this function can be used
   if (argv) {
     argv.forEach(function (arg, idx) {
@@ -151,13 +157,13 @@ function handleCommandLineArguments (argv) {
   }
 }
 
-function createWindow (customArgs = {}) {
+function createWindow(customArgs = {}) {
   var bounds;
 
   try {
     var data = fs.readFileSync(path.join(userDataPath, 'windowBounds.json'), 'utf-8')
     bounds = JSON.parse(data)
-  } catch (e) {}
+  } catch (e) { }
 
   if (!bounds) { // there was an error, probably because the file doesn't exist
     var size = electron.screen.getPrimaryDisplay().workAreaSize
@@ -186,7 +192,7 @@ function createWindow (customArgs = {}) {
   return createWindowWithBounds(bounds, customArgs)
 }
 
-function createWindowWithBounds (bounds, customArgs) {
+function createWindowWithBounds(bounds, customArgs) {
   const newWin = new BrowserWindow({
     width: bounds.width,
     height: bounds.height,
@@ -261,7 +267,7 @@ function createWindowWithBounds (bounds, customArgs) {
   newWin.on('unmaximize', function () {
     sendIPCToWindow(newWin, 'unmaximize')
   })
-  
+
   newWin.on('focus', function () {
     sendIPCToWindow(newWin, 'focus')
   })
@@ -369,7 +375,7 @@ app.on('open-url', function (e, url) {
 })
 
 // handoff support for macOS
-app.on('continue-activity', function(e, type, userInfo, details) {
+app.on('continue-activity', function (e, type, userInfo, details) {
   if (type === 'NSUserActivityTypeBrowsingWeb' && details.webpageURL) {
     e.preventDefault()
     sendIPCToWindow(windows.getCurrent(), 'addTab', {
@@ -416,7 +422,7 @@ ipc.on('showSecondaryMenu', function (event, data) {
   })
 })
 
-ipc.on('handoffUpdate', function(e, data) {
+ipc.on('handoffUpdate', function (e, data) {
   if (app.setUserActivity && data.url && data.url.startsWith('http')) {
     app.setUserActivity('NSUserActivityTypeBrowsingWeb', {}, data.url)
   } else if (app.invalidateCurrentActivity) {
@@ -428,8 +434,8 @@ ipc.on('quit', function () {
   app.quit()
 })
 
-ipc.on('tab-state-change', function(e, events) {
-  windows.getAll().forEach(function(window) {
+ipc.on('tab-state-change', function (e, events) {
+  windows.getAll().forEach(function (window) {
     if (window.webContents.id !== e.sender.id) {
       window.webContents.send('tab-state-change-receive', {
         sourceWindowId: windows.windowFromContents(e.sender).id,
@@ -439,30 +445,51 @@ ipc.on('tab-state-change', function(e, events) {
   })
 })
 
-ipc.on('request-tab-state', function(e) {
+ipc.on('request-tab-state', function (e) {
   const otherWindow = windows.getAll().find(w => w.webContents.id !== e.sender.id)
   if (!otherWindow) {
     throw new Error('secondary window doesn\'t exist as source for tab state')
   }
-  ipc.once('return-tab-state', function(e2, data) {
+  ipc.once('return-tab-state', function (e2, data) {
     e.returnValue = data
   })
   otherWindow.webContents.send('read-tab-state')
 })
+
+ipc.handle('make-proxy-request', async (event, { url, method, headers, body }) => {
+  try {
+    const response = await fetch(url, {
+      method: method || 'GET',
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+      agent: agent
+    });
+
+    const responseData = await response.json();
+    return {
+      ok: response.ok,
+      status: response.status,
+      data: responseData
+    };
+  } catch (error) {
+    console.error('Proxy request failed:', error);
+    throw error;
+  }
+});
 
 /* places service */
 
 const placesPage = 'file://' + __dirname + '/js/places/placesService.html'
 
 let placesWindow = null
-app.once('ready', function() {
+app.once('ready', function () {
   placesWindow = new BrowserWindow({
     width: 300,
     height: 300,
     show: false,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
     }
   })
 
