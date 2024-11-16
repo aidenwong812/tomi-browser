@@ -8,6 +8,9 @@ Min is a fast, minimal browser that protects your privacy. It includes an interf
 - Tasks (tab groups)
 - Bookmark tagging
 - Password manager integration
+- Custom Search Engine
+- Resolve ENS and IPFS gateway
+- Socks5 Proxy
 - Dark theme
 
 Download Min from the [releases page](https://github.com/minbrowser/min/releases), or learn more on the [website](https://minbrowser.org/).
