@@ -1,0 +1,434 @@
+#navbar {
+  display: flex;
+  height: calc(36px + var(--control-space-top));
+  transition: 0.2s background-color;
+  width: 100%;
+  -webkit-user-select: none;
+  position: relative;
+  outline: none;
+  z-index: 2;
+  padding-top: var(--control-space-top);
+  padding-left: var(--control-space-left);
+  padding-right: var(--control-space-right);
+}
+
+/* when the tab-group is white, we need a line to separate it from the webviews */
+
+#navbar:before {
+  content: "";
+  width: 100vw;
+  height: 1px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.075);
+}
+
+/* dark colors don't need to be darkened as much for contrast */
+
+.dark-theme #navbar:before {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* navbar buttons */
+
+#toolbar-navigation-buttons {
+  width: 2rem;
+  transition: 0.1s width;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+#toolbar-navigation-buttons.can-go-forward:hover {
+  width: 4rem;
+}
+
+body.is-edit-mode #toolbar-navigation-buttons {
+  display: none;
+}
+
+#back-button,
+#forward-button {
+  opacity: 1;
+  transition: none;
+  padding: 0;
+  width: 2rem;
+}
+#back-button:disabled,
+#forward-button:disabled {
+  opacity: 0.2;
+}
+
+/* Remove default space from being inline-block */
+#forward-button {
+  margin-left: -0.25rem;
+}
+
+#menu-button {
+  width: 36px;
+  padding: 0;
+}
+
+#menu-button {
+  display: none;
+}
+
+body.windows #menu-button,
+body.linux #menu-button {
+  display: inline-block;
+}
+
+/* tab layout */
+
+#navbar #tabs {
+  display: flex;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+#tabs #tabs-inner {
+  display: flex;
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+#tabs #tabs-inner.disable-scroll {
+  overflow-x: hidden;
+}
+
+.tab-item {
+  flex: 1;
+  min-width: 125px;
+  transition: 0.2s transform;
+  line-height: 36px;
+  height: 36px;
+  overflow: hidden;
+  word-break: break-all;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+.tab-item.active {
+  min-width: 168px;
+}
+.tab-item.gu-mirror {
+  top: var(--control-space-top) !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  margin-top: 2px !important;
+  opacity: 1;
+  box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.25);
+  background-color: #fff !important;
+  color: var(--theme-foreground-color);
+  border-radius: 3px;
+}
+.tab-item.gu-mirror:before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  content: '';
+  background-color: var(--theme-background-color);
+  opacity: 0.7;
+}
+.dark-mode .tab-item.gu-mirror {
+  background: rgb(84, 91, 100) !important;
+  color: white !important;
+}
+.tab-item.gu-transit {
+  opacity: 0 !important;
+}
+.tab-item.gu-mirror .tab-icon-area {
+  display: none;
+}
+
+#navbar.show-dividers .tab-item:not(:last-child) {
+  border-right: 1px solid rgba(0, 0, 0, 0.15);
+}
+.dark-theme #navbar.show-dividers .tab-item:not(:last-child) {
+  border-right-color: rgba(255, 255, 255, 0.4);
+}
+
+#navbar.show-dividers:before {
+  background: rgba(182, 182, 182, 0.5);
+}
+
+.tab-item:not(.active):hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+.dark-theme .tab-item:not(.active):hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.dark-theme.theme-background-low-contrast .tab-item:not(.active):hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* icons */
+
+.tab-item .tab-icon-area {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  order: 1;
+}
+body:not(.touch)
+  .tab-item:not(:hover)
+  .tab-icon-area:has(.tab-close-button:only-child) {
+  margin-left: -0.5rem;
+}
+
+.tab-item .tab-icon {
+  position: relative;
+  font-size: 0.875em;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.tab-item .tab-icon:not(.permission-request-icon):hover:after {
+  content: "";
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.075);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+}
+.dark-theme .tab-item .tab-icon:hover:after {
+  background: rgba(255, 255, 255, 0.15);
+}
+.tab-item.active:not(:only-child) {
+  background: rgba(0, 0, 0, 0.06);
+}
+.dark-theme .tab-item.active:not(:only-child) {
+  background: rgba(255, 255, 255, 0.2);
+}
+.dark-theme.theme-background-low-contrast .tab-item.active:not(:only-child) {
+  background: rgba(255, 255, 255, 0.25);
+}
+.tab-item.fade {
+  opacity: 0.55;
+}
+.tab-item.fade:hover {
+  opacity: 1;
+}
+
+.is-edit-mode #navbar #tabs-inner::-webkit-scrollbar {
+  height: 0;
+}
+
+/* hide tabs when tab editor is open */
+
+.is-edit-mode .tab-item {
+  opacity: 0;
+}
+
+/* hide the lock icon unless its the current tab */
+
+.tab-item:not(.active) .icon-tab-not-secure {
+  display: none;
+}
+.tab-item .title-container {
+  display: inline-block;
+  position: relative;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  flex: 1;
+  overflow: hidden;
+}
+.compact-tabs .tab-item .title {
+  font-size: 14px;
+}
+.tab-item .title {
+  display: block;
+  position: absolute;
+  top: 0;
+  font-size: 15px;
+  transform-origin: left 10%;
+  transition: 0.15s transform;
+  white-space: nowrap;
+}
+.tab-item .url-element {
+  display: block;
+  position: absolute;
+  top: 5px;
+  transform-origin: left 90%;
+  transform: translateY(15%);
+  opacity: 0;
+  transition: 0.15s all;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.tab-item.active.has-url:hover .url-element {
+  transform: none;
+  opacity: 1;
+}
+.tab-item.active.has-url:hover .title {
+  transform: scale(0.7333) translateY(-10%);
+  opacity: 0.9;
+}
+.compact-tabs .tab-item.active.has-url:hover .title {
+  transform: scale(0.78571) translateY(-12%);
+}
+
+/* buttons */
+
+.navbar-action-button {
+  padding: 0 1rem;
+  height: 36px;
+  margin-top: -0.5px;
+  font-size: 1.4em !important;
+}
+body.windows .navbar-action-button:not(:disabled):hover {
+  background-color: rgba(0, 0, 0, 0.075);
+}
+body.windows.dark-theme .navbar-action-button:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.075);
+}
+.navbar-action-button.invisible {
+  visibility: hidden;
+}
+.navbar-action-button + .navbar-action-button {
+  padding-left: 0.5em;
+}
+.navbar-right-actions {
+  margin-right: 2.3em;
+}
+
+.navbar-right-actions #add-tab-button {
+  padding: 0;
+  width: 36px;
+  font-size: 1.6em !important;
+}
+
+/* audio button */
+.tab-item .tab-audio-button {
+  vertical-align: text-bottom;
+  padding: 0;
+  font-size: 1.1em !important;
+}
+
+/* reader button */
+
+.tab-item .reader-button {
+  display: none;
+  vertical-align: text-bottom;
+  font-size: 1.1em !important;
+  order: -1;
+}
+.tab-item.active .reader-button.can-reader {
+  display: inline-flex;
+}
+.tab-item.active .reader-button.is-reader {
+  display: inline-flex;
+}
+
+/* permission request buttons */
+
+.tab-item .tab-icon.permission-request-icon {
+  border: 1px rgba(0, 0, 0, 0.3) solid;
+  border-radius: 0.75rem;
+  height: 70%;
+  margin: auto 0;
+  order: -1;
+  padding-inline: 0.25rem;
+}
+.tab-item .tab-icon.permission-request-icon .i {
+  vertical-align: middle;
+  display: inline-block;
+}
+.dark-theme .tab-item .tab-icon.permission-request-icon {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.tab-item .tab-icon.permission-request-icon:hover {
+  background-color: rgba(0, 0, 0, 0.075);
+}
+.dark-theme .tab-item .tab-icon.permission-request-icon:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+.tab-item .tab-icon.permission-request-icon.active {
+  background-color: rgba(0, 0, 0, 0.66);
+  border-color: transparent;
+  color: white;
+}
+.dark-theme .tab-item .tab-icon.permission-request-icon.active {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-color: transparent;
+  color: black;
+}
+
+.tab-item:not(.active) .permission-request-icon:not(.active) {
+  display: none;
+}
+
+/* in Carbon, close icon is a bit smaller than other icons, enlarge it in order to match with other icons */
+.tab-item .tab-close-button {
+  font-size: 1.25em;
+  box-sizing: border-box;
+  order: 1;
+}
+.tab-item .tab-close-button:hover:after {
+  font-size: 0.9em;
+}
+
+/* when the tab is hovered, hide info buttons and show the close button */
+
+body:not(.touch) .tab-item:hover .tab-info-icon {
+  display: none;
+}
+body:not(.touch) .tab-item .tab-close-button {
+  display: none;
+}
+body:not(.touch) .tab-item:hover .tab-close-button {
+  display: inline-block;
+}
+
+body.is-focus-mode .navbar-action-button:not(#menu-button) {
+  display: none;
+}
+
+/* progress bar */
+
+.progress-bar-container {
+  height: 2px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* margin: 0 0.8em; */
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 2px;
+  width: 100%;
+  background-color: currentColor;
+}
+
+body:not(.dark-theme) .progress-bar {
+  opacity: 0.8;
+}
+
+.p0 {
+  transform: translateX(-100%);
+}
+
+.p25 {
+  transform: translateX(-75%);
+  transition: transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.p100 {
+  transform: translateX(0%);
+  transition: transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}

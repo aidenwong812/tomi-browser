@@ -1,0 +1,158 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 16px;
+  font-family: ".SFNSText-Regular", "BlinkMacSystemFont", "Helvetica Neue",
+    "Segoe UI", "Arial", sans-serif;
+}
+/* TODO figure out why the default focus color in Electron is orange */
+*:focus {
+  outline-color: rgb(0, 117, 255);
+}
+.dark-mode *:focus {
+  outline-color: transparent;
+}
+body.mac * {
+  letter-spacing: 0.4px;
+}
+[hidden] {
+  display: none !important;
+}
+
+/* buttons are styled like normal text by default */
+button {
+  -webkit-appearance: none;
+  background: none;
+  border: none;
+  color: inherit;
+  outline: none;
+}
+body,
+html {
+  background-color: #fff;
+  color: #000;
+  height: 100%;
+  overflow: hidden;
+  -webkit-user-select: none;
+}
+
+body.dark-mode {
+  background-color: rgb(33, 37, 43);
+  color: lightgrey;
+  border: 1px solid #ff0083;
+  box-shadow: 0 0 25px #ff0083,
+    /* increased from 15px to 25px */ 0 0 8px #ff0083 inset; /* increased from 5px to 8px */
+  animation: borderGlow 2s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+  0% {
+    box-shadow: 0 0 25px #ff0083, 0 0 8px #ff0083 inset;
+  }
+  50% {
+    box-shadow: 0 0 40px #ff0083,
+      /* increased from 25px to 40px */ 0 0 15px #ff0083 inset; /* increased from 10px to 15px */
+  }
+  100% {
+    box-shadow: 0 0 25px #ff0083, 0 0 8px #ff0083 inset;
+  }
+}
+
+/* Light mode with bigger glow */
+body {
+  background-color: #fff;
+  color: #000;
+  height: 100%;
+  overflow: hidden;
+  -webkit-user-select: none;
+  border: 1px solid #ff0083;
+  box-shadow: 0 0 25px rgba(255, 0, 131, 0.5),
+    /* increased from 15px to 25px */ 0 0 8px rgba(255, 0, 131, 0.3) inset; /* increased from 5px to 8px */
+  animation: borderGlowLight 2s ease-in-out infinite;
+}
+
+@keyframes borderGlowLight {
+  0% {
+    box-shadow: 0 0 25px rgba(255, 0, 131, 0.5),
+      0 0 8px rgba(255, 0, 131, 0.3) inset;
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 0, 131, 0.7),
+      /* increased from 25px to 40px */ 0 0 15px rgba(255, 0, 131, 0.5) inset; /* increased from 10px to 15px */
+  }
+  100% {
+    box-shadow: 0 0 25px rgba(255, 0, 131, 0.5),
+      0 0 8px rgba(255, 0, 131, 0.3) inset;
+  }
+}
+
+h1,
+h2,
+h3 {
+  font-size: 5em;
+  font-weight: 300;
+  opacity: 0.8;
+  margin: 0.5em 0;
+  color: inherit;
+  text-align: center;
+}
+h2 {
+  text-align: left;
+  font-size: 2.75em;
+}
+h3 {
+  text-align: left;
+  font-size: 2em;
+}
+h1 + h2 {
+  margin-top: -1em;
+}
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+.spacer {
+  height: 1em;
+}
+
+.light-fade {
+  opacity: 0.666;
+}
+
+a {
+  color: royalblue;
+  text-decoration: none;
+}
+
+.dark-mode a {
+  color: dodgerblue;
+}
+
+.dark-mode input,
+.dark-mode textarea {
+  background-color: rgb(52, 58, 68);
+  color: white;
+  border-color: transparent;
+}
+
+/* styled scrollbars */
+
+.has-thin-scrollbar::-webkit-scrollbar {
+  height: 0.25em;
+}
+.has-thin-scrollbar::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+.has-thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.175);
+  border-radius: 0.25em;
+}
+.dark-theme .has-thin-scrollbar::-webkit-scrollbar-track {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+.dark-theme .has-thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.6);
+}

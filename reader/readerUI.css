@@ -1,0 +1,153 @@
+body,
+html {
+  height: auto;
+  overflow: auto;
+  min-height: 100vh;
+}
+
+body[theme="dark"] {
+  background-color: rgb(36, 41, 47);
+  color: rgb(180, 180, 180);
+}
+
+body[theme="sepia"] {
+  background-color: rgb(247, 231, 199);
+  color: rgba(80, 55, 35, 1);
+}
+
+#auto-redirect-banner {
+  max-width: 650px;
+  margin: 1em auto;
+  border: 1px #ddd solid;
+  padding: 0.5em;
+  border-radius: 3px;
+  color: #333;
+}
+
+@media all and (max-width: 800px) {
+  /* make sure there is room for the settings button */
+  #auto-redirect-banner {
+    margin-right: 4em;
+    margin-left: 0.5em;
+  }
+}
+
+body[theme="dark"] #auto-redirect-banner {
+  color: #bbb;
+  border-color: #bbb;
+}
+
+body[theme="sepia"] #auto-redirect-banner {
+  color: rgba(0, 0, 0, 0.75);
+  border-color: rgba(0, 0, 0, 0.15)
+}
+
+#auto-redirect-button-area {
+  float: right;
+  padding-right: 0.5em;
+}
+
+#auto-redirect-button-area button {
+  padding: 0.5em;
+  margin-top: -0.5em;
+  color: #777;
+}
+body[theme="dark"] #auto-redirect-button-area button {
+  color: #999;
+}
+
+#auto-redirect-button-area button.primary {
+  color: royalblue;
+}
+
+body[theme="dark"] #auto-redirect-button-area button.primary {
+  color: dodgerblue;
+}
+
+#auto-redirect-button-area button:active {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+#backtoarticle {
+  max-width: 650px;
+  margin: auto;
+  padding-top: 1.5em;
+}
+#backtoarticle-link {
+  color: dodgerblue;
+  cursor: pointer;
+  font-family: system-ui, ".SFNSText-Regular", sans-serif;
+  display: inline-block;
+  padding: 1em;
+  margin: -1em;
+}
+
+#backtoarticle-link span {
+  font-size: 1.25em;
+  vertical-align: bottom;
+}
+
+#auto-redirect-banner:not([hidden]) + #backtoarticle {
+  padding-top: 0.5em;
+}
+
+#backtoarticle-link .i {
+  vertical-align: middle;
+  font-size: 1.4em;
+  margin: 0 -0.2em;
+}
+
+.temporary-frame {
+  display: none;
+}
+
+.reader-frame {
+  display: block;
+  width: 100%;
+  /* height is set in js */
+  border: 0;
+}
+
+#site-nav-links {
+  padding: 1em 1.5em;
+}
+
+#site-nav-links .site-icon-link {
+  opacity: 0.9 !important;
+}
+
+#site-nav-links .site-icon {
+  width: 22px;
+  height: 22px;
+  vertical-align: text-bottom;
+}
+
+body[theme="dark"] .site-icon {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+#site-nav-links a {
+  color: inherit;
+  display: inline-block;
+  opacity: 0.55;
+  text-decoration: none;
+  padding: 0 0.5em;
+  font-size: 1.1em;
+  white-space: nowrap;
+  max-width: 15em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#site-nav-links a.selected {
+  opacity: 0.66;
+  font-weight: 600;
+}
+
+body:not([theme="light"]) #site-nav-links a {
+  opacity: 0.65;
+}
+
+body:not([theme="light"]) #site-nav-links a.selected {
+  opacity: 0.75;
+}

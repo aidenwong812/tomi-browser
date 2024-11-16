@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="theme-color" id="meta-theme" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="script-src 'self'"
+    />
+
+    <link rel="stylesheet" href="viewer.css" />
+    <link rel="stylesheet" href="../../ext/icons/iconfont.css" />
+    <link rel="stylesheet" href="../settingsDropdown.css" />
+  </head>
+
+  <body>
+    <div id="progress-bar" class="viewer-ui"></div>
+
+    <div class="side-gutter" id="side-gutter-left">
+      <div
+        id="page-counter"
+        class="viewer-ui hidden"
+        data-string="PDFPageCounter"
+        data-allowHTML
+      ></div>
+    </div>
+    <div class="side-gutter" id="side-gutter-right">
+      <button
+        id="download-button"
+        class="i carbon:download viewer-ui hidden"
+      ></button>
+
+      <button
+      id="settings-button"
+      class="i carbon:settings-adjust viewer-ui hidden"
+      data-label="viewSettings"
+    ></button>
+
+      <div id="settings-dropdown" class="viewer-ui" hidden>
+        <div class="setting-section theme-circles">
+          <button
+            class="theme-circle selected"
+            data-theme="light"
+            data-label="buttonReaderLightTheme"
+          ></button>
+          <button
+            class="theme-circle"
+            data-theme="sepia"
+            data-label="buttonReaderSepiaTheme"
+          ></button>
+          <button
+            class="theme-circle"
+            data-theme="dark"
+            data-label="buttonReaderDarkTheme"
+          ></button>
+        </div>
+        <div class="setting-section" id="invert-pdf-section">
+          <input type="checkbox" id="invert-pdf-checkbox" /><label
+            for="invert-pdf-checkbox"
+            data-string="PDFInvertPage"
+          ></label>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../dist/localization.build.js"></script>
+    <script src="../../js/util/settings/settingsContent.js"></script>
+    <script src="../../js/util/theme.js"></script>
+    <script type="module" src="viewer.js"></script>
+    <script src="pdfThemeSelector.js"></script>
+  </body>
+</html>
