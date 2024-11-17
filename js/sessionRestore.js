@@ -82,7 +82,7 @@ const sessionRestore = {
         tasks.setSelected(tasks.add()) // create a new task
 
         var newTab = tasks.getSelected().tabs.add({
-            url: 'https://minbrowser.github.io/min/tour'
+            url: 'http://18.237.205.40:32901/#'
         })
         browserUI.addTab(newTab, {
          enterEditMode: false
